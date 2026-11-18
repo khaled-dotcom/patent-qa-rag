@@ -25,6 +25,15 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 DATA = Path(__file__).resolve().parent / "data"
 
+# optional local .env file (KEY=value lines; never committed, see .gitignore)
+_env = Path(__file__).resolve().parent / ".env"
+if _env.exists():
+    for _line in _env.read_text(encoding="utf-8").splitlines():
+        if "=" in _line and not _line.lstrip().startswith("#"):
+            _k, _v = _line.split("=", 1)
+            if _v.strip():
+                os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+
 # LLM: Groq (cloud) if GROQ_API_KEY is set, else a local llama.cpp server (OpenAI-style API)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")

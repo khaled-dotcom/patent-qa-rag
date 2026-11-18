@@ -1,0 +1,106 @@
+{
+  "date": "2026-11-18 16:35",
+  "via": "in-process",
+  "A_exact_no_patent_id": {
+    "questions": 7573,
+    "correct": 7573,
+    "accuracy_pct": 100.0,
+    "wrong_answer": 0,
+    "not_matched": 0,
+    "by_kind": {
+      "qa": 4795,
+      "conversation": 2778
+    },
+    "seconds": 40.1
+  },
+  "A_exact_with_patent_id": {
+    "questions": 7573,
+    "correct": 7573,
+    "accuracy_pct": 100.0,
+    "wrong_answer": 0,
+    "not_matched": 0,
+    "by_kind": {
+      "qa": 4795,
+      "conversation": 2778
+    },
+    "seconds": 39.6
+  },
+  "B_lower_no_punct": {
+    "questions": 7573,
+    "correct": 7573,
+    "accuracy_pct": 100.0,
+    "wrong_answer": 0,
+    "not_matched": 0,
+    "by_kind": {
+      "qa": 4795,
+      "conversation": 2778
+    },
+    "seconds": 39.5
+  },
+  "B_please_tell_me": {
+    "questions": 7573,
+    "correct": 7573,
+    "accuracy_pct": 100.0,
+    "wrong_answer": 0,
+    "not_matched": 0,
+    "by_kind": {
+      "qa": 4795,
+      "conversation": 2778
+    },
+    "seconds": 50.9
+  },
+  "B_extra_spaces": {
+    "questions": 7573,
+    "correct": 7573,
+    "accuracy_pct": 100.0,
+    "wrong_answer": 0,
+    "not_matched": 0,
+    "by_kind": {
+      "qa": 4795,
+      "conversation": 2778
+    },
+    "seconds": 39.1
+  },
+  "D_llm_reworded": {
+    "questions": 200,
+    "no_id_WRONG": 1,
+    "no_id_correct": 116,
+    "no_id_not_matched": 83,
+    "with_id_WRONG": 1,
+    "with_id_correct": 114,
+    "with_id_not_matched": 85,
+    "wrong_examples": [
+      {
+        "id": "patent-954946cff7d2-q3",
+        "original": "What generates the select signals used to control which input connects to which output in the mapping matrix?",
+        "reworded": "What determines the mapping of inputs to outputs in the connection matrix?",
+        "matched": "How does the mapping matrix decide which input connects to which output?",
+        "got": "Each output is controlled by a unique select signal S[i] derived from a formatting signal, and no two inputs can share the same output, ensuring a one-to-one mapping.",
+        "gold": "a control unit that generates the desired select signals"
+      },
+      {
+        "id": "patent-954946cff7d2-q3",
+        "original": "What generates the select signals used to control which input connects to which output in the mapping matrix?",
+        "reworded": "What determines the mapping of inputs to outputs in the connection matrix?",
+        "matched": "How does the mapping matrix decide which input connects to which output?",
+        "got": "Each output is controlled by a unique select signal S[i] derived from a formatting signal, and no two inputs can share the same output, ensuring a one-to-one mapping.",
+        "gold": "a control unit that generates the desired select signals"
+      }
+    ],
+    "note": "WRONG may also be a different question that has the same meaning; read the examples"
+  },
+  "C_rag_new_question_with_patent_id": {
+    "questions": 100,
+    "mean_token_f1": 0.547,
+    "f1_at_least_0.5_pct": 56.0,
+    "found_right_patent_pct": 100.0,
+    "answered_pct": 91.0
+  },
+  "C_rag_new_question_no_patent_id": {
+    "questions": 100,
+    "mean_token_f1": 0.537,
+    "f1_at_least_0.5_pct": 53.0,
+    "found_right_patent_pct": 95.0,
+    "answered_pct": 89.0
+  }
+}

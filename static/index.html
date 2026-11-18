@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patent Q&amp;A</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#16181d; --muted:#5d6472; --line:#e2e5ea;
+  --accent:#2457d6; --accent-ink:#ffffff; --ok:#137a3f; --ok-bg:#e5f4ea; --gen:#8a5a00; --gen-bg:#fdf1d8;
+  --bad:#a52a2a; --bad-bg:#fbe6e6; --mark:#fff3a3; --code:#f0f2f5;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#111317; --card:#1a1d23; --ink:#e8eaee; --muted:#9aa2b1; --line:#2b3039;
+    --accent:#6c95ff; --accent-ink:#0d1220; --ok:#5fd08d; --ok-bg:#15301f; --gen:#f0c060; --gen-bg:#33290f;
+    --bad:#ff8a8a; --bad-bg:#3a1a1a; --mark:#5a4d00; --code:#22262e; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{border-bottom:1px solid var(--line);background:var(--card)}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;padding-bottom:14px}
+h1{font-size:20px;margin:0}
+.status{font-size:13px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--muted)}
+.dot.on{background:var(--ok)} .dot.off{background:var(--bad)}
+main{padding:24px 0 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+label{font-size:13px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px}
+textarea,input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+textarea{min-height:76px;resize:vertical}
+textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+button{font:inherit;border:0;border-radius:8px;padding:10px 18px;background:var(--accent);color:var(--accent-ink);font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);font-weight:500;padding:8px 12px}
+button:disabled{opacity:.6;cursor:wait}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px}
+.patent-pick{position:relative;margin-top:14px}
+.suggest{position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:8px;max-height:280px;overflow:auto;display:none}
+.suggest div{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line);font-size:14px}
+.suggest div:hover{background:var(--bg)}
+.chip{display:inline-flex;gap:8px;align-items:center;background:var(--code);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px;margin-top:8px;max-width:100%}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip button{padding:2px 8px;background:transparent;color:var(--muted);border:0}
+.badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:6px;padding:3px 8px}
+.badge.verified{background:var(--ok-bg);color:var(--ok)} .badge.generated{background:var(--gen-bg);color:var(--gen)}
+.badge.retrieval_only,.badge.not_found{background:var(--bad-bg);color:var(--bad)}
+.answer{font-size:20px;font-weight:600;margin:10px 0 6px;white-space:pre-wrap}
+.meta{font-size:13px;color:var(--muted)}
+.src{border-left:3px solid var(--line);padding:6px 0 6px 12px;margin:10px 0;font-size:14px;white-space:pre-wrap;max-height:220px;overflow:auto}
+.src .h{font-size:12px;color:var(--muted);margin-bottom:2px}
+mark{background:var(--mark);color:inherit;border-radius:2px}
+.qlist{font-size:14px;margin:8px 0 0;padding-left:18px}
+.qlist li{cursor:pointer;color:var(--accent);margin:3px 0}
+code,pre{background:var(--code);border-radius:6px;font:13px/1.5 ui-monospace,Consolas,monospace}
+pre{padding:12px;overflow:auto}
+code{padding:1px 5px}
+details summary{cursor:pointer;font-weight:600}
+.err{color:var(--bad)}
+@media (max-width:560px){ .answer{font-size:18px} header .wrap{flex-direction:column;align-items:flex-start} }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Patent Q&amp;A</h1>
+  <div class="status" id="status">loading…</div>
+</div></header>
+<main><div class="wrap">
+
+<div class="card">
+  <label for="q">Your question</label>
+  <textarea id="q" placeholder="e.g. How much does the portable carpet binding machine weigh?"></textarea>
+  <div class="patent-pick">
+    <label for="ps">Patent (optional – picking one gives better answers to new questions)</label>
+    <input id="ps" placeholder="Search patents by topic or id…" autocomplete="off">
+    <div class="suggest" id="sg"></div>
+    <div id="chip"></div>
+  </div>
+  <div class="row">
+    <button id="go">Ask</button>
+    <select id="mode" aria-label="mode">
+      <option value="auto">Auto (verified, then RAG)</option>
+      <option value="verified">Verified answers only</option>
+      <option value="rag">RAG only (LLM)</option>
+    </select>
+    <button class="ghost" id="rand">Random checked question</button>
+  </div>
+</div>
+
+<div id="out"></div>
+
+<div class="card">
+  <details>
+    <summary>Use it as an API</summary>
+    <p class="meta">Full interactive docs: <a href="/docs">/docs</a>. If the server has an API key set, send it as header <code>X-API-Key</code>.</p>
+<pre id="curl"></pre>
+    <p class="meta">Answer modes: <b>verified</b> = one of the 7,573 checked questions (answer checked as correct); <b>generated</b> = new question answered by the LLM from the patent passages shown; <b>retrieval_only</b> = LLM offline, passages only.</p>
+  </details>
+</div>
+
+</div></main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s ?? "").toString().replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let docId = null, key = "";
+try { key = localStorage.getItem("ragKey") || ""; } catch (e) {}
+const api = async (path, opts={}) => {
+  opts.headers = Object.assign({"Content-Type":"application/json"}, key ? {"X-API-Key": key} : {}, opts.headers||{});
+  const r = await fetch(path, opts);
+  if (r.status === 401) {
+    const k = prompt("This server needs an API key:");
+    if (k) { key = k; try { localStorage.setItem("ragKey", k); } catch (e) {} return api(path, opts); }
+  }
+  if (!r.ok) throw new Error((await r.json().catch(()=>({detail:r.statusText}))).detail);
+  return r.json();
+};
+
+$("#curl").textContent =
+`curl -X POST ${location.origin}/api/ask \\
+  -H "Content-Type: application/json" \\
+  -d '{"question": "How much does the portable carpet binding machine weigh?"}'
+
+# optional fields: "doc_id": "patent-...", "history": "User: ...\\nAssistant: ...", "mode": "auto|verified|rag"`;
+
+async function health(){
+  try{
+    const h = await fetch("/api/health").then(r=>r.json());
+    $("#status").innerHTML = `<span>${h.patents} patents</span><span>${h.checked_questions.toLocaleString()} checked questions</span>
+      <span><i class="dot ${h.llm_online?'on':'off'}"></i>LLM ${h.llm_online?'online':'offline'}</span>`;
+  }catch(e){ $("#status").textContent = "server not reachable"; }
+}
+health(); setInterval(health, 30000);
+
+function highlight(text, words){
+  let t = esc(text);
+  words.filter(w=>w.length>3).slice(0,25).forEach(w=>{
+    t = t.replace(new RegExp(`\\b(${w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})\\b`,"gi"), "<mark>$1</mark>");
+  });
+  return t;
+}
+
+async function ask(){
+  const q = $("#q").value.trim(); if (q.length < 3) return;
+  $("#go").disabled = true; $("#out").innerHTML = `<div class="card meta">Thinking…</div>`;
+  try{
+    const r = await api("/api/ask", {method:"POST", body: JSON.stringify({question:q, doc_id:docId, mode:$("#mode").value})});
+    const words = ((r.answer||"") + " ").match(/\w+/g) || [];
+    const why = r.mode === "verified"
+      ? `Checked answer · ${r.match.type === "exact" ? "exact match" : r.match.type === "reworded" ? "same question, small wording changes" : "a checked question with the same meaning – compare it with yours"}: <i>${esc(r.match.matched_question)}</i>`
+      : r.mode === "generated" ? "New question · answered by the LLM from the passages below — check the sources"
+      : esc(r.note || "No verified answer found");
+    let html = `<div class="card"><span class="badge ${r.mode}">${r.mode.replace("_"," ")}</span>
+      <div class="answer">${esc(r.answer ?? "—")}</div>
+      <div class="meta">${why}</div>
+      <div class="meta">Patent: <code>${esc(r.doc_id||"")}</code> ${esc(r.patent_title||"")} · ${r.ms} ms</div></div>`;
+    if (r.sources?.length){
+      html += `<div class="card"><label>${r.mode==="verified"?"Where the patent says it":"Passages used"}</label>` +
+        r.sources.map((s,i)=>`<div class="src"><div class="h">[${i+1}] ${esc(s.doc_id)}${s.score!==undefined?" · score "+s.score:""}</div>${highlight(s.text, words)}</div>`).join("") + `</div>`;
+    }
+    $("#out").innerHTML = html;
+  }catch(e){ $("#out").innerHTML = `<div class="card err">${esc(e.message)}</div>`; }
+  $("#go").disabled = false;
+}
+$("#go").onclick = ask;
+$("#q").addEventListener("keydown", e => { if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); }});
+
+let t;
+$("#ps").addEventListener("input", () => {
+  clearTimeout(t);
+  const s = $("#ps").value.trim();
+  if (!s){ $("#sg").style.display="none"; return; }
+  t = setTimeout(async ()=>{
+    const list = await api(`/api/patents?search=${encodeURIComponent(s)}&limit=10`);
+    $("#sg").innerHTML = list.map(p=>`<div data-id="${esc(p.doc_id)}"><b>${esc(p.title)}</b><br><span class="meta">${esc(p.doc_id)} · ${p.questions} checked questions</span></div>`).join("") || `<div class="meta">no match</div>`;
+    $("#sg").style.display = "block";
+  }, 250);
+});
+$("#sg").addEventListener("click", e => { const d = e.target.closest("[data-id]"); if (d) pick(d.dataset.id); });
+document.addEventListener("click", e => { if (!e.target.closest(".patent-pick")) $("#sg").style.display="none"; });
+
+async function pick(id){
+  docId = id; $("#sg").style.display="none"; $("#ps").value="";
+  const p = await api(`/api/patents/${id}`);
+  $("#chip").innerHTML = `<div class="chip"><span><b>${esc(id)}</b> · ${esc(p.title)}</span><button title="clear" id="clr">✕</button></div>
+    <ul class="qlist">${p.questions.slice(0,12).map(q=>`<li>${esc(q.question)}</li>`).join("")}</ul>`;
+  $("#clr").onclick = () => { docId=null; $("#chip").innerHTML=""; };
+  document.querySelectorAll(".qlist li").forEach(li => li.onclick = () => { $("#q").value = li.textContent; ask(); });
+}
+
+$("#rand").onclick = async () => {
+  const list = await api(`/api/patents?limit=200`);
+  const p = list[Math.floor(Math.random()*list.length)];
+  await pick(p.doc_id);
+  const d = await api(`/api/patents/${p.doc_id}`);
+  if (d.questions.length){ $("#q").value = d.questions[Math.floor(Math.random()*d.questions.length)].question; ask(); }
+};
+</script>
+</body>
+</html>

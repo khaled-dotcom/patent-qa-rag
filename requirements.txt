@@ -1,0 +1,6 @@
+fastapi==0.115.0
+numpy==2.5.5
+pydantic==2.14.3
+scikit-learn==1.9.1
+scipy==1.18.1
+uvicorn==0.32.0
